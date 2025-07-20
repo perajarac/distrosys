@@ -11,26 +11,84 @@ message Body {
   double vz = 8;
 }
 
-message TaskArg {
-  enum SchemaType {
-    Bag = 0;
-    Collector = 1;
-    Worker = 2;
-  }
+message Task {
+  string task_name = 1;
 
-  SchemaType schema_type = 1;
+  int32 task_id = 2;
 
-  string task_name = 2;
+  int64 l_time = 3;
 
-  int32 task_id = 3;
+  int64 delta_time = 4;
 
-  optional int32 n = 4;
+  int64 iteration = 5;
 
-  optional int32 m = 5;
+  int64 wait_period = 6;
+}
 
-  optional int32 l_time = 6;
+message BodyRow {
+  repeated Body body = 1;
+}
 
-  optional int32 delta_time = 7;
+message BagArg {
+  Task t = 1;
 
-  repeated Body body = 8;
+  int32 NUM = 2;
+
+  int32 n = 3;
+
+  int32 m = 4;
+
+  int32 cnt = 5;
+
+  int32 next = 6;
+
+  int64 start = 7;
+}
+
+message BagRet {
+  repeated BodyRow result = 1;
+  repeated TaskRet task_ret = 2;
+}
+
+message Field {
+  int64 serial_version_uid = 1;
+
+  double GAMA = 2;
+
+  int64 iteration = 3;
+
+  int64 time = 4;
+
+  int64 interval = 5;
+
+  repeated Body coordinates = 6;
+
+  repeated int32 indexes = 7;
+}
+
+message TaskRet {
+  int64 serial_version_uid = 1;
+
+  enum Status {
+    OK = 0;
+    NOK = 1;
+  };
+  Status status = 2;
+
+  int64 id = 3;
+
+  int64 l_time_created = 4;
+  int64 l_time = 5;
+
+  int64 src_id = 6;
+  int64 src_port = 7;
+
+  int64 dst_id = 8;
+  int32 dst_port = 9;
+
+  Field data = 10;
+}
+
+service Executor {
+  rpc SendBagTask (BagArg) returns (BagRet);
 }
