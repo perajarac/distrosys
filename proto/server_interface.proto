@@ -1,3 +1,36 @@
-message Petar {
-  optional int32 a = 1;
+syntax = "proto3";
+
+message Body {
+  int32 id = 1;
+  int32 m = 2;
+  double x = 3;
+  double y = 4;
+  double z = 5;
+  double vx = 6;
+  double vy = 7;
+  double vz = 8;
+}
+
+message TaskArg {
+  enum SchemaType {
+    Bag = 0;
+    Collector = 1;
+    Worker = 2;
+  }
+
+  SchemaType schema_type = 1;
+
+  string task_name = 2;
+
+  int32 task_id = 3;
+
+  optional int32 n = 4;
+
+  optional int32 m = 5;
+
+  optional int32 l_time = 6;
+
+  optional int32 delta_time = 7;
+
+  repeated Body body = 8;
 }

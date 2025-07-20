@@ -1,1 +1,3 @@
-.idea
+.idea/
+target/
+generated_proto/
