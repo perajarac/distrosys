@@ -1,5 +1,11 @@
 syntax = "proto3";
 
+package distrosys;
+
+option java_multiple_files = true;
+option java_package = "ac.rs.bg.etf.proto";
+option java_outer_classname = "ServerInterfaceProto";
+
 message Body {
   int32 id = 1;
   int32 m = 2;
@@ -29,6 +35,22 @@ message BodyRow {
   repeated Body body = 1;
 }
 
+message Field {
+  int64 serial_version_uid = 1;
+
+  double GAMA = 2;
+
+  int64 iteration = 3;
+
+  int64 time = 4;
+
+  int64 interval = 5;
+
+  repeated Body coordinates = 6;
+
+  repeated int32 indexes = 7;
+}
+
 message BagArg {
   Task t = 1;
 
@@ -48,22 +70,6 @@ message BagArg {
 message BagRet {
   repeated BodyRow result = 1;
   repeated TaskRet task_ret = 2;
-}
-
-message Field {
-  int64 serial_version_uid = 1;
-
-  double GAMA = 2;
-
-  int64 iteration = 3;
-
-  int64 time = 4;
-
-  int64 interval = 5;
-
-  repeated Body coordinates = 6;
-
-  repeated int32 indexes = 7;
 }
 
 message TaskRet {
@@ -89,6 +95,6 @@ message TaskRet {
   Field data = 10;
 }
 
-service Executor {
+service ServerService {
   rpc SendBagTask (BagArg) returns (BagRet);
 }
