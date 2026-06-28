@@ -5,14 +5,30 @@ import java.util.List;
 
 import rs.ac.bg.etf.sleep.simulation.*;
 
+/**
+ * Aggregator component that merges partial {@link Field} results from workers.
+ *
+ * <p>The Collector (typically component id 2) accumulates worker outputs until
+ * {@link #cnt} equals {@link #m} (total body count), then merges all bodies and
+ * sends the combined state back to the {@link Bag} (component id 1).
+ */
 public class Collector extends G {
+	/** Running count of bodies received in the current aggregation round. */
 	int cnt;
+
+	/** Partial field results collected in the current round. */
 	List<Field> filds;
+
+	/** Whether this is the first message in a new aggregation round. */
 	boolean start;
 
+	/** Number of workers (configuration field). */
 	int n;
+
+	/** Total number of bodies expected per round. */
 	int m;
 
+	/** Creates a collector with default state and an empty partial-result list. */
 	public Collector() {
 		id = 0;
 		name = "";
@@ -24,6 +40,15 @@ public class Collector extends G {
 		m = 0;
 	}
 
+	/**
+	 * Accumulates partial {@link Field} results from workers and merges when complete.
+	 *
+	 * <p>When {@link #cnt} reaches {@link #m}, all bodies are merged into one {@link Field}
+	 * and sent to the Bag on component id 1, port 0.
+	 *
+	 * @param msg incoming partial result from a worker
+	 * @return list containing the merged result event to the Bag, or empty while accumulating
+	 */
 	@Override
 	public List<Event<Field>> execute(Event<Field> msg) {
 		List<Event<Field>> result = new LinkedList<Event<Field>>();
@@ -69,6 +94,11 @@ public class Collector extends G {
 		return result;
 	}
 
+	/**
+	 * Serializes collector configuration state.
+	 *
+	 * @return string array: id, class name, name, id, n, m
+	 */
 	@Override
 	public String[] getState() {
 		String[] result = new String[6];
@@ -81,6 +111,11 @@ public class Collector extends G {
 		return result;
 	}
 
+	/**
+	 * Restores collector configuration from a serialized string array.
+	 *
+	 * @param args serialized state from {@link #getState()}
+	 */
 	@Override
 	public void setState(String[] args) {
 		name = args[2];
@@ -89,6 +124,11 @@ public class Collector extends G {
 		m = Integer.parseInt(args[5]);
 	}
 
+	/**
+	 * Rolls logical time back to the given value.
+	 *
+	 * @param time logical time to restore
+	 */
 	@Override
 	public void restart(long time) {
 		lTime = time;

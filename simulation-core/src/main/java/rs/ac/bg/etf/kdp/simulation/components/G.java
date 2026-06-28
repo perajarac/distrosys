@@ -5,6 +5,12 @@ import java.util.List;
 
 import rs.ac.bg.etf.sleep.simulation.*;
 
+/**
+ * Abstract base class for KDP simulation components operating on {@link Field} payloads.
+ *
+ * <p>Provides shared timing and identity state plus a default {@link #init()} that
+ * schedules a self-directed bootstrap event via {@link #createForItself()}.
+ */
 public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Field> {
 	String name;
 	int id;
@@ -13,6 +19,7 @@ public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Fi
 	long iteration;
 	long waitPeriod;
 
+	/** Creates a component with default identity and timing values. */
 	public G() {
 		name = "";
 		id = 0;
@@ -22,6 +29,13 @@ public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Fi
 		waitPeriod = 1000;
 	}
 
+	/**
+	 * Creates a self-directed event after sleeping for {@link #waitPeriod} milliseconds.
+	 *
+	 * <p>The returned event routes from this component back to itself with {@code null} payload.
+	 *
+	 * @return bootstrap or reschedule event for this component
+	 */
 	public Event<Field> createForItself() {
 		try {
 			Thread.sleep(waitPeriod);
@@ -40,6 +54,11 @@ public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Fi
 		return resultMsg;
 	}
 
+	/**
+	 * Returns a single self-directed event to seed the simulation queue.
+	 *
+	 * @return list containing one event from {@link #createForItself()}
+	 */
 	public List<Event<Field>> init() {
 		List<Event<Field>> result = new LinkedList<Event<Field>>();
 		result.add(createForItself());

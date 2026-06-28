@@ -3,15 +3,34 @@ package rs.ac.bg.etf.kdp.simulation.components;
 import java.io.*;
 import java.util.*;
 
+/**
+ * Serializable work unit carrying a subset of bodies for one gravitational simulation step.
+ *
+ * <p>A {@link Field} holds the full coordinate list plus indexes of bodies assigned to
+ * a worker. {@link #calculate()} advances only those bodies using Newtonian gravity.
+ */
 public class Field implements Serializable {
 	private static final long serialVersionUID = 1L;
+
+	/** Gravitational constant used in force calculations (scaled units). */
 	private static final double GAMA = 6.674 / 100000000000l;
+
+	/** Simulation iteration counter associated with this field. */
 	long iteration;
+
+	/** Current logical time of the field. */
 	long time;
+
+	/** Time step (interval) for this computation. */
 	long interval;
+
+	/** Full list of body coordinates visible to this computation. */
 	List<Body> coordinates;
+
+	/** Indexes into {@link #coordinates} identifying bodies to advance. */
 	List<Integer> indexes;
 
+	/** Creates an empty field with zero iteration, time, and interval. */
 	public Field() {
 		iteration = 0;
 		time = 0;
@@ -20,6 +39,11 @@ public class Field implements Serializable {
 		indexes = new LinkedList<Integer>();
 	}
 
+	/**
+	 * Advances all bodies indexed in {@link #indexes} by one time step.
+	 *
+	 * @return a new field containing updated body states and incremented time
+	 */
 	public Field calculate() {
 		Field result = new Field();
 		List<Body> bodies = new LinkedList<Body>();
@@ -33,6 +57,13 @@ public class Field implements Serializable {
 		return result;
 	}
 
+	/**
+	 * Computes the next state of a single body under gravitational forces from all other bodies.
+	 *
+	 * @param coordinates full list of bodies used as gravitational sources
+	 * @param body        body to advance
+	 * @return a new body with updated position, velocity, and acceleration
+	 */
 	public Body move(List<Body> coordinates, Body body) {
 		Body result = new Body();
 		double ax = 0;
@@ -61,6 +92,15 @@ public class Field implements Serializable {
 		return result;
 	}
 
+	/**
+	 * Returns the Euclidean distance between two bodies.
+	 *
+	 * <p>Distances below {@code 1e-10} are clamped to {@code 1e-10} to avoid division by zero.
+	 *
+	 * @param a first body
+	 * @param b second body
+	 * @return distance between the two bodies
+	 */
 	public double distance(Body a, Body b) {
 		double r = 0;
 		double a1 = a.x - b.x;
@@ -72,10 +112,20 @@ public class Field implements Serializable {
 		return r;
 	}
 
+	/**
+	 * Appends a body to the coordinate list.
+	 *
+	 * @param b body to add
+	 */
 	public void addBody(Body b) {
 		coordinates.add(b);
 	}
 
+	/**
+	 * Appends an index to the list of bodies to compute.
+	 *
+	 * @param index index into {@link #coordinates}
+	 */
 	public void addIndex(int index) {
 		indexes.add(index);
 	}
