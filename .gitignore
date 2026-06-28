@@ -1,7 +1,5 @@
 .idea/
 .cursor/*
-!.cursor/rules/
-!.cursor/rules/**
 generated_proto/
 KDP_*
 logs/
