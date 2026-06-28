@@ -1,0 +1,39 @@
+---
+description: Concise Java formatting and whitespace rules
+alwaysApply: true
+---
+
+# Formatting and Concise Code
+
+Match the spacing style used in `ServerServiceMain` and `SubJobExecutor`. Do not add vertical padding.
+
+## Whitespace
+
+- Never insert blank lines between consecutive statements, imports, or fields.
+- Use one blank line between top-level type members (methods, field groups).
+- Use one blank line between import groups: project → third-party → `java.*`.
+- Use one blank line after the class Javadoc, before the class body.
+- No blank lines inside methods, loops, try/catch, or lambdas unless separating logical blocks.
+
+```java
+// BAD — blank line after every line
+public void foo() {
+
+    doSomething();
+
+    doMore();
+
+}
+
+// GOOD
+public void foo() {
+    doSomething();
+    doMore();
+}
+```
+
+## Concise code
+
+- Keep code compact; avoid expanding simple logic with extra vertical space.
+- Do not reformat unrelated code when making a focused change.
+- After editing Java files, run `mvn spotless:apply` from the repo root.

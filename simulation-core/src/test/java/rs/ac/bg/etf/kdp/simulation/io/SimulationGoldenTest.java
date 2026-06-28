@@ -8,23 +8,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
 import rs.ac.bg.etf.sleep.simulation.Netlist;
 import rs.ac.bg.etf.sleep.simulation.Simulator;
 
-/**
- * End-to-end golden tests comparing simulation output to stored baselines.
- */
+/** End-to-end golden tests comparing simulation output to stored baselines. */
 class SimulationGoldenTest {
 
-  @TempDir
-  Path tempDir;
+  @TempDir Path tempDir;
 
   static Stream<Arguments> goldenCases() {
     return Stream.of(
@@ -47,8 +42,8 @@ class SimulationGoldenTest {
   @Tag("slow")
   @ParameterizedTest
   @MethodSource("slowGoldenCases")
-  void slowSimulationMatchesBaseline(String componentsFile, String connectionsFile, String baselineFile)
-      throws Exception {
+  void slowSimulationMatchesBaseline(
+      String componentsFile, String connectionsFile, String baselineFile) throws Exception {
     runGoldenCase(componentsFile, connectionsFile, baselineFile);
   }
 
@@ -60,9 +55,11 @@ class SimulationGoldenTest {
     Path baselinePath = resourcePath("baseline").resolve(baselineFile);
     Path outputPath = tempDir.resolve("actual.txt");
 
-    Netlist<Object> netlist = NetlistLoader.load(componentsPath.toString(), connectionsPath.toString());
+    Netlist<Object> netlist =
+        NetlistLoader.load(componentsPath.toString(), connectionsPath.toString());
     @SuppressWarnings("unchecked")
-    Simulator<Object> simulator = (Simulator<Object>) SimulatorFactory.create(SimulationType.OPTIMISTIC, 1);
+    Simulator<Object> simulator =
+        (Simulator<Object>) SimulatorFactory.create(SimulationType.OPTIMISTIC, 1);
     simulator.setNetlist(netlist);
     simulator.init();
 

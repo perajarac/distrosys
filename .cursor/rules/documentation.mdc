@@ -1,0 +1,52 @@
+---
+description: Always add documentation when writing or modifying code
+alwaysApply: true
+---
+
+# Code Documentation
+
+When adding or changing code, include documentation as part of the same change. Do not leave new or modified public APIs undocumented.
+
+## Java
+
+Use Javadoc (`/** ... */`) for:
+
+- Every `public` and `protected` class, interface, enum, and record
+- Every `public` and `protected` method and constructor
+- Every `public` and `protected` field when its purpose is not obvious from the name
+
+Document:
+
+- **Purpose** — what the type or member does
+- **Parameters** — `@param` for each parameter
+- **Return value** — `@return` when not `void`
+- **Exceptions** — `@throws` for checked exceptions and significant runtime failures
+- **Generics** — `@param <T>` on classes/interfaces when type parameters need explanation
+
+Use `{@link Type#member}` to reference related types in this project.
+
+Skip Javadoc only for trivial private helpers whose behavior is obvious from a one-line implementation. Prefer brief, accurate docs over restating the method name.
+
+```java
+// ✅ GOOD
+/**
+ * Loads a netlist from component and connection description files.
+ *
+ * @param componentsPath path to the components file
+ * @param connectionsPath path to the connections file
+ * @return populated netlist ready for simulation
+ * @throws Exception if a file cannot be read or parsed
+ */
+public static Netlist<Object> load(String componentsPath, String connectionsPath) throws Exception
+
+// ❌ BAD — public API with no documentation
+public static Netlist<Object> load(String componentsPath, String connectionsPath) throws Exception
+```
+
+## Protocol Buffers
+
+Add brief `//` comments above messages, fields, and RPCs when the name alone does not explain intent.
+
+## Other Languages
+
+Follow that language's standard documentation style (e.g. docstrings in Python, `///` in C#). Apply the same rule: document all public APIs you add or change.
