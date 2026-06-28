@@ -4,27 +4,34 @@ import ac.rs.bg.etf.proto.BagArg;
 import ac.rs.bg.etf.proto.BagRet;
 import ac.rs.bg.etf.proto.Body;
 import ac.rs.bg.etf.proto.BodyRow;
+import ac.rs.bg.etf.proto.CancelJobRequest;
+import ac.rs.bg.etf.proto.CancelJobResponse;
+import ac.rs.bg.etf.proto.FileChunk;
+import ac.rs.bg.etf.proto.HeartbeatRequest;
+import ac.rs.bg.etf.proto.HeartbeatResponse;
+import ac.rs.bg.etf.proto.JobId;
+import ac.rs.bg.etf.proto.JobResultResponse;
+import ac.rs.bg.etf.proto.JobStatus;
+import ac.rs.bg.etf.proto.JobStatusResponse;
+import ac.rs.bg.etf.proto.RegisterWorkstationRequest;
+import ac.rs.bg.etf.proto.RegisterWorkstationResponse;
+import ac.rs.bg.etf.proto.ServerServiceGrpc;
+import ac.rs.bg.etf.proto.SubmitJobRequest;
+import ac.rs.bg.etf.proto.SubmitJobResponse;
 import ac.rs.bg.etf.proto.TaskRet;
-import io.grpc.BindableService;
-import io.grpc.MethodDescriptor;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.protobuf.ProtoUtils;
-import io.grpc.stub.ServerCalls;
+import ac.rs.bg.etf.proto.UploadJobFilesResponse;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 
-public class ServerServiceImpl implements BindableService {
+/**
+ * gRPC service implementation for {@link ServerServiceGrpc}.
+ *
+ * <p>Job scheduling, workstation registry, and file upload handling are stubbed
+ * until the server module is fully implemented.
+ */
+public class ServerServiceImpl extends ServerServiceGrpc.ServerServiceImplBase {
 
-    private static final String SERVICE_NAME = "distrosys.ServerService";
-
-    private static final MethodDescriptor<BagArg, BagRet> SEND_BAG_TASK_METHOD =
-            MethodDescriptor.<BagArg, BagRet>newBuilder()
-                    .setType(MethodDescriptor.MethodType.UNARY)
-                    .setFullMethodName(MethodDescriptor.generateFullMethodName(SERVICE_NAME,
-                        "SendBagTask"))
-                    .setRequestMarshaller(ProtoUtils.marshaller(BagArg.getDefaultInstance()))
-                    .setResponseMarshaller(ProtoUtils.marshaller(BagRet.getDefaultInstance()))
-                    .build();
-
+    @Override
     public void sendBagTask(BagArg request, StreamObserver<BagRet> responseObserver) {
         Body sampleBody = Body.newBuilder()
                 .setId(1)
@@ -52,18 +59,88 @@ public class ServerServiceImpl implements BindableService {
     }
 
     @Override
-    public ServerServiceDefinition bindService() {
-        return ServerServiceDefinition.builder(SERVICE_NAME)
-                .addMethod(
-                        SEND_BAG_TASK_METHOD,
-                        ServerCalls.asyncUnaryCall(new ServerCalls.UnaryMethod<BagArg, BagRet>() {
-                            @Override
-                            public void invoke(BagArg request, StreamObserver<BagRet> responseObserver) {
-                                sendBagTask(request, responseObserver);
-                            }
-                        })
-                )
+    public void submitJob(SubmitJobRequest request, StreamObserver<SubmitJobResponse> responseObserver) {
+        SubmitJobResponse response = SubmitJobResponse.newBuilder()
+                .setJobId(0L)
+                .setStatus(JobStatus.JOB_STATUS_UNSPECIFIED)
+                .setMessage("not implemented")
                 .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getJobStatus(JobId request, StreamObserver<JobStatusResponse> responseObserver) {
+        JobStatusResponse response = JobStatusResponse.newBuilder()
+                .setJobId(request.getJobId())
+                .setStatus(JobStatus.JOB_STATUS_UNSPECIFIED)
+                .setMessage("not implemented")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void getJobResult(JobId request, StreamObserver<JobResultResponse> responseObserver) {
+        JobResultResponse response = JobResultResponse.newBuilder()
+                .setJobId(request.getJobId())
+                .setStatus(JobStatus.JOB_STATUS_UNSPECIFIED)
+                .setErrorMessage("not implemented")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void cancelJob(CancelJobRequest request, StreamObserver<CancelJobResponse> responseObserver) {
+        CancelJobResponse response = CancelJobResponse.newBuilder()
+                .setSuccess(false)
+                .setMessage("not implemented")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public StreamObserver<FileChunk> uploadJobFiles(StreamObserver<UploadJobFilesResponse> responseObserver) {
+        responseObserver.onError(Status.UNIMPLEMENTED.withDescription("not implemented").asRuntimeException());
+        return new StreamObserver<FileChunk>() {
+            @Override
+            public void onNext(FileChunk value) {
+                // discard until UNIMPLEMENTED is propagated
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                // no-op
+            }
+
+            @Override
+            public void onCompleted() {
+                // no-op
+            }
+        };
+    }
+
+    @Override
+    public void registerWorkstation(
+            RegisterWorkstationRequest request,
+            StreamObserver<RegisterWorkstationResponse> responseObserver) {
+        RegisterWorkstationResponse response = RegisterWorkstationResponse.newBuilder()
+                .setAccepted(false)
+                .setMessage("not implemented")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void heartbeat(HeartbeatRequest request, StreamObserver<HeartbeatResponse> responseObserver) {
+        HeartbeatResponse response = HeartbeatResponse.newBuilder()
+                .setAcknowledged(false)
+                .setMessage("not implemented")
+                .build();
+        responseObserver.onNext(response);
+        responseObserver.onCompleted();
     }
 }
-

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package distrosys;
+
+import "common.proto";
+import "server_interface.proto";
+
+option java_multiple_files = true;
+option java_package = "ac.rs.bg.etf.proto";
+option java_outer_classname = "WorkstationInterfaceProto";
+
+message SubJobRequest {
+  int64 job_id = 1;
+  int64 subjob_id = 2;
+  repeated string component_lines = 3;
+  repeated string connection_lines = 4;
+  SimulationType sim_type = 5;
+  int64 end_time = 6;
+  string local_workstation_id = 7;
+  map<int64, string> component_owner = 8;
+}
+
+message SubJobResponse {
+  int64 job_id = 1;
+  int64 subjob_id = 2;
+  SubJobStatus status = 3;
+  repeated ComponentState component_states = 4;
+  string error_message = 5;
+}
+
+message ForwardEventRequest {
+  int64 job_id = 1;
+  string target_workstation_id = 2;
+  SimEvent event = 3;
+  Field payload = 4;
+}
+
+message EventAck {
+  bool accepted = 1;
+  string message = 2;
+}
+
+service WorkstationService {
+  rpc ExecuteSubJob(SubJobRequest) returns (SubJobResponse);
+  // Routes a simulation event to a remote workstation partition
+  rpc ForwardEvent(ForwardEventRequest) returns (EventAck);
+}

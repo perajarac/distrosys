@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package distrosys;
 
+import "common.proto";
+
 option java_multiple_files = true;
 option java_package = "ac.rs.bg.etf.proto";
 option java_outer_classname = "ServerInterfaceProto";
@@ -95,6 +97,115 @@ message TaskRet {
   Field data = 10;
 }
 
+message JobFilePaths {
+  string components_path = 1;
+  string connections_path = 2;
+}
+
+message JobFileRef {
+  string upload_id = 1;
+}
+
+message SubmitJobRequest {
+  oneof input {
+    JobFilePaths paths = 1;
+    JobFileRef upload_ref = 2;
+  }
+  SimulationType sim_type = 3;
+  int64 end_time = 4;
+  string client_output_name = 5;
+}
+
+message SubmitJobResponse {
+  int64 job_id = 1;
+  JobStatus status = 2;
+  string message = 3;
+}
+
+message JobId {
+  int64 job_id = 1;
+}
+
+message JobStatusResponse {
+  int64 job_id = 1;
+  JobStatus status = 2;
+  string message = 3;
+  int32 completed_subjobs = 4;
+  int32 total_subjobs = 5;
+}
+
+message JobResultResponse {
+  int64 job_id = 1;
+  JobStatus status = 2;
+  bytes result_content = 3;
+  string result_path = 4;
+  string error_message = 5;
+}
+
+message CancelJobRequest {
+  int64 job_id = 1;
+}
+
+message CancelJobResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+enum FileKind {
+  FILE_KIND_UNSPECIFIED = 0;
+  COMPONENTS = 1;
+  CONNECTIONS = 2;
+}
+
+message FileChunk {
+  string upload_id = 1;
+  FileKind kind = 2;
+  bytes data = 3;
+  bool last_chunk = 4;
+}
+
+message UploadJobFilesResponse {
+  string upload_id = 1;
+  bool success = 2;
+  string components_temp_path = 3;
+  string connections_temp_path = 4;
+  string message = 5;
+}
+
+message RegisterWorkstationRequest {
+  string hostname = 1;
+  string grpc_host = 2;
+  int32 grpc_port = 3;
+  int32 parallelism = 4;
+}
+
+message RegisterWorkstationResponse {
+  string workstation_id = 1;
+  bool accepted = 2;
+  string message = 3;
+}
+
+message HeartbeatRequest {
+  string workstation_id = 1;
+  int32 active_subjobs = 2;
+  int64 reported_load = 3;
+}
+
+message HeartbeatResponse {
+  bool acknowledged = 1;
+  string message = 2;
+}
+
 service ServerService {
-  rpc SendBagTask (BagArg) returns (BagRet);
+  rpc SendBagTask(BagArg) returns (BagRet);
+
+  rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
+  rpc GetJobStatus(JobId) returns (JobStatusResponse);
+  rpc GetJobResult(JobId) returns (JobResultResponse);
+  rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
+  // Client-streaming upload for large netlist files
+  rpc UploadJobFiles(stream FileChunk) returns (UploadJobFilesResponse);
+
+  rpc RegisterWorkstation(RegisterWorkstationRequest) returns (RegisterWorkstationResponse);
+  rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
 }
