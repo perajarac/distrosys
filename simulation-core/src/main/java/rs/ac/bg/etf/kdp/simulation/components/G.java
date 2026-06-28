@@ -3,6 +3,8 @@ package rs.ac.bg.etf.kdp.simulation.components;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rs.ac.bg.etf.sleep.simulation.*;
 
 /**
@@ -12,6 +14,8 @@ import rs.ac.bg.etf.sleep.simulation.*;
  * schedules a self-directed bootstrap event via {@link #createForItself()}.
  */
 public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Field> {
+	private static final Logger log = LoggerFactory.getLogger(G.class);
+
 	String name;
 	int id;
 	long lTime;
@@ -40,7 +44,8 @@ public abstract class G implements rs.ac.bg.etf.sleep.simulation.SimComponent<Fi
 		try {
 			Thread.sleep(waitPeriod);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			log.error("Component {} interrupted while waiting", id, e);
+			Thread.currentThread().interrupt();
 		}
 		Event<Field> resultMsg = new Event<Field>();
 		resultMsg.setData(null);

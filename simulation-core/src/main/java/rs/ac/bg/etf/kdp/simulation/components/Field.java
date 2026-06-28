@@ -130,4 +130,74 @@ public class Field implements Serializable {
 		indexes.add(index);
 	}
 
+	/**
+	 * @return simulation iteration counter
+	 */
+	public long getIteration() {
+		return iteration;
+	}
+
+	/**
+	 * @param iteration simulation iteration counter
+	 */
+	public void setIteration(long iteration) {
+		this.iteration = iteration;
+	}
+
+	/**
+	 * @return current logical time
+	 */
+	public long getTime() {
+		return time;
+	}
+
+	/**
+	 * @param time current logical time
+	 */
+	public void setTime(long time) {
+		this.time = time;
+	}
+
+	/**
+	 * @return time step for this computation
+	 */
+	public long getInterval() {
+		return interval;
+	}
+
+	/**
+	 * @param interval time step for this computation
+	 */
+	public void setInterval(long interval) {
+		this.interval = interval;
+	}
+
+	/**
+	 * @return body coordinates visible to this computation
+	 */
+	public List<Body> getCoordinates() {
+		return coordinates;
+	}
+
+	/**
+	 * @param coordinates body coordinates visible to this computation
+	 */
+	public void setCoordinates(List<Body> coordinates) {
+		this.coordinates = coordinates;
+	}
+
+	/**
+	 * @return indexes of bodies to advance
+	 */
+	public List<Integer> getIndexes() {
+		return indexes;
+	}
+
+	/**
+	 * @param indexes indexes of bodies to advance
+	 */
+	public void setIndexes(List<Integer> indexes) {
+		this.indexes = indexes;
+	}
+
 }

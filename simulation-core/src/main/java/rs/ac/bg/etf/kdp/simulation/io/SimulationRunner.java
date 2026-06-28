@@ -1,5 +1,7 @@
 package rs.ac.bg.etf.kdp.simulation.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import rs.ac.bg.etf.sleep.simulation.Netlist;
 import rs.ac.bg.etf.sleep.simulation.Simulator;
 
@@ -13,6 +15,8 @@ import rs.ac.bg.etf.sleep.simulation.Simulator;
  * {@code <komponente.txt> <veze.txt> <output.txt> <simType> <endTime>}
  */
 public final class SimulationRunner {
+
+    private static final Logger log = LoggerFactory.getLogger(SimulationRunner.class);
 
     private SimulationRunner() {
     }
@@ -32,9 +36,9 @@ public final class SimulationRunner {
      * @param args command-line arguments
      */
     public static void main(String[] args) {
+        LoggingBootstrap.init();
         if (args.length < 5) {
-            System.err.println(
-                    "Usage: <komponente.txt> <veze.txt> <output.txt> <simType> <endTime>");
+            log.error("Usage: <komponente.txt> <veze.txt> <output.txt> <simType> <endTime>");
             System.exit(1);
         }
 
@@ -55,7 +59,7 @@ public final class SimulationRunner {
             }
             NetlistWriter.write(netlist, outputPath);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Simulation failed", e);
             System.exit(1);
         }
     }

@@ -2,3 +2,4 @@
 .cursor/
 generated_proto/
 KDP_*
+logs/

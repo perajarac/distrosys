@@ -52,4 +52,44 @@ public final class NetlistLoader {
         netlist.addConnection(con);
         return netlist;
     }
+
+    /**
+     * Builds a netlist from in-memory component and connection lines (same format as files).
+     *
+     * @param componentLines one component description per line
+     * @param connectionLines header row followed by connection rows
+     * @return populated netlist ready for simulation
+     * @throws IllegalArgumentException if lines are empty or malformed
+     */
+    public static Netlist<Object> loadFromLines(List<String> componentLines, List<String> connectionLines) {
+        if (componentLines == null || componentLines.isEmpty()) {
+            throw new IllegalArgumentException("component lines must not be empty");
+        }
+        if (connectionLines == null || connectionLines.size() < 2) {
+            throw new IllegalArgumentException("connection lines must include a header and at least one connection");
+        }
+
+        Netlist<Object> netlist = new Netlist<>();
+        for (String line : componentLines) {
+            if (line == null || line.isBlank()) {
+                continue;
+            }
+            String[] names = line.trim().split("\\s+");
+            netlist.addComponent(names);
+        }
+        if (netlist.getComponents().isEmpty()) {
+            throw new IllegalArgumentException("no components could be loaded from component lines");
+        }
+
+        String[][] con = new String[connectionLines.size() - 1][];
+        for (int i = 0; i < connectionLines.size() - 1; i++) {
+            String line = connectionLines.get(i + 1);
+            if (line == null || line.isBlank()) {
+                throw new IllegalArgumentException("connection line " + (i + 1) + " is blank");
+            }
+            con[i] = line.trim().split("\\s+");
+        }
+        netlist.addConnection(con);
+        return netlist;
+    }
 }

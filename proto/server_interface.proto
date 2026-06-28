@@ -1,13 +1,15 @@
 syntax = "proto3";
 
+// Server-facing gRPC API: legacy bag simulation, job submission, and worker registration.
 package distrosys;
 
 import "common.proto";
 
 option java_multiple_files = true;
-option java_package = "ac.rs.bg.etf.proto";
+option java_package = "rs.ac.bg.etf.proto";
 option java_outer_classname = "ServerInterfaceProto";
 
+// Wire DTO for a gravitating body; not the simulation-core Body domain type.
 message Body {
   int32 id = 1;
   int32 m = 2;
@@ -19,17 +21,13 @@ message Body {
   double vz = 8;
 }
 
+// Legacy bag-task scheduling metadata.
 message Task {
   string task_name = 1;
-
   int32 task_id = 2;
-
   int64 l_time = 3;
-
   int64 delta_time = 4;
-
   int64 iteration = 5;
-
   int64 wait_period = 6;
 }
 
@@ -37,35 +35,25 @@ message BodyRow {
   repeated Body body = 1;
 }
 
+// Wire DTO for a field snapshot; not the simulation-core Field domain type.
 message Field {
   int64 serial_version_uid = 1;
-
   double GAMA = 2;
-
   int64 iteration = 3;
-
   int64 time = 4;
-
   int64 interval = 5;
-
   repeated Body coordinates = 6;
-
   repeated int32 indexes = 7;
 }
 
+// Input to the legacy SendBagTask RPC.
 message BagArg {
   Task t = 1;
-
   int32 NUM = 2;
-
   int32 n = 3;
-
   int32 m = 4;
-
   int32 cnt = 5;
-
   int32 next = 6;
-
   int64 start = 7;
 }
 
@@ -82,38 +70,35 @@ message TaskRet {
     NOK = 1;
   };
   Status status = 2;
-
   int64 id = 3;
-
   int64 l_time_created = 4;
   int64 l_time = 5;
-
   int64 src_id = 6;
   int64 src_port = 7;
-
   int64 dst_id = 8;
   int32 dst_port = 9;
-
   Field data = 10;
 }
 
+// Netlist paths on the server filesystem (server-local job submission).
 message JobFilePaths {
   string components_path = 1;
   string connections_path = 2;
 }
 
+// Reference to a prior UploadJobFiles session.
 message JobFileRef {
   string upload_id = 1;
 }
 
 message SubmitJobRequest {
   oneof input {
-    JobFilePaths paths = 1;
-    JobFileRef upload_ref = 2;
+    JobFilePaths paths = 1;   // use when files already exist on the server
+    JobFileRef upload_ref = 2; // use after client-streaming upload
   }
   SimulationType sim_type = 3;
   int64 end_time = 4;
-  string client_output_name = 5;
+  string client_output_name = 5; // preferred name for the merged result file
 }
 
 message SubmitJobResponse {
@@ -137,8 +122,8 @@ message JobStatusResponse {
 message JobResultResponse {
   int64 job_id = 1;
   JobStatus status = 2;
-  bytes result_content = 3;
-  string result_path = 4;
+  bytes result_content = 3; // inline result when small enough
+  string result_path = 4;   // server path when result is stored on disk
   string error_message = 5;
 }
 
@@ -157,6 +142,7 @@ enum FileKind {
   CONNECTIONS = 2;
 }
 
+// One chunk in a client-streaming netlist upload.
 message FileChunk {
   string upload_id = 1;
   FileKind kind = 2;
@@ -176,7 +162,7 @@ message RegisterWorkstationRequest {
   string hostname = 1;
   string grpc_host = 2;
   int32 grpc_port = 3;
-  int32 parallelism = 4;
+  int32 parallelism = 4; // max concurrent sub-jobs this worker accepts
 }
 
 message RegisterWorkstationResponse {
@@ -188,7 +174,7 @@ message RegisterWorkstationResponse {
 message HeartbeatRequest {
   string workstation_id = 1;
   int32 active_subjobs = 2;
-  int64 reported_load = 3;
+  int64 reported_load = 3; // opaque load metric for scheduling
 }
 
 message HeartbeatResponse {
@@ -197,15 +183,22 @@ message HeartbeatResponse {
 }
 
 service ServerService {
+  // Legacy distributed bag simulation task.
   rpc SendBagTask(BagArg) returns (BagRet);
 
+  // Submit a new simulation job.
   rpc SubmitJob(SubmitJobRequest) returns (SubmitJobResponse);
+  // Poll job progress.
   rpc GetJobStatus(JobId) returns (JobStatusResponse);
+  // Fetch merged job output.
   rpc GetJobResult(JobId) returns (JobResultResponse);
+  // Abort a running or queued job.
   rpc CancelJob(CancelJobRequest) returns (CancelJobResponse);
-  // Client-streaming upload for large netlist files
+  // Client-streaming upload for large netlist files.
   rpc UploadJobFiles(stream FileChunk) returns (UploadJobFilesResponse);
 
+  // Register a worker in the server pool.
   rpc RegisterWorkstation(RegisterWorkstationRequest) returns (RegisterWorkstationResponse);
+  // Periodic worker liveness and load report.
   rpc Heartbeat(HeartbeatRequest) returns (HeartbeatResponse);
 }

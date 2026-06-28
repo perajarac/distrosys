@@ -1,14 +1,22 @@
 syntax = "proto3";
 
+// Workstation-facing gRPC API: partition execution and cross-worker event routing.
 package distrosys;
 
 import "common.proto";
 import "server_interface.proto";
 
 option java_multiple_files = true;
-option java_package = "ac.rs.bg.etf.proto";
+option java_package = "rs.ac.bg.etf.proto";
 option java_outer_classname = "WorkstationInterfaceProto";
 
+// gRPC address of a peer workstation.
+message WorkstationEndpoint {
+  string grpc_host = 1;
+  int32 grpc_port = 2;
+}
+
+// Run one netlist partition on this workstation.
 message SubJobRequest {
   int64 job_id = 1;
   int64 subjob_id = 2;
@@ -17,7 +25,8 @@ message SubJobRequest {
   SimulationType sim_type = 5;
   int64 end_time = 6;
   string local_workstation_id = 7;
-  map<int64, string> component_owner = 8;
+  map<int64, string> component_owner = 8; // global component id -> owning workstation id
+  map<string, WorkstationEndpoint> workstation_endpoints = 9; // workstation id -> gRPC endpoint
 }
 
 message SubJobResponse {
@@ -28,11 +37,12 @@ message SubJobResponse {
   string error_message = 5;
 }
 
+// Route a simulation event to another workstation's partition.
 message ForwardEventRequest {
   int64 job_id = 1;
   string target_workstation_id = 2;
   SimEvent event = 3;
-  Field payload = 4;
+  Field payload = 4; // optional field data carried with the event
 }
 
 message EventAck {
@@ -41,7 +51,8 @@ message EventAck {
 }
 
 service WorkstationService {
+  // Execute an assigned sub-job locally.
   rpc ExecuteSubJob(SubJobRequest) returns (SubJobResponse);
-  // Routes a simulation event to a remote workstation partition
+  // Relay a simulation event to a remote workstation partition.
   rpc ForwardEvent(ForwardEventRequest) returns (EventAck);
 }

@@ -1,11 +1,12 @@
 syntax = "proto3";
 
+// Shared enums and cross-service wire types used by server and workstation gRPC APIs.
 package distrosys;
 
 option java_multiple_files = true;
-option java_package = "ac.rs.bg.etf.proto";
+option java_package = "rs.ac.bg.etf.proto";
 
-// Aligned with rs.ac.bg.etf.kdp.simulation.io.SimulationType
+// Simulation engine selector; aligned with rs.ac.bg.etf.kdp.simulation.io.SimulationType.
 enum SimulationType {
   SIMULATION_TYPE_UNSPECIFIED = 0;
   OPTIMISTIC = 1;
@@ -13,6 +14,7 @@ enum SimulationType {
   MULTITHREAD = 3;
 }
 
+// Lifecycle state of a distributed simulation job on the server.
 enum JobStatus {
   JOB_STATUS_UNSPECIFIED = 0;
   READY = 1;
@@ -23,6 +25,7 @@ enum JobStatus {
   ABORTED = 6;
 }
 
+// Lifecycle state of a single workstation partition (sub-job).
 enum SubJobStatus {
   SUB_JOB_STATUS_UNSPECIFIED = 0;
   SUB_JOB_PENDING = 1;
@@ -31,10 +34,10 @@ enum SubJobStatus {
   SUB_JOB_FAILED = 4;
 }
 
-// Mirror of Event routing fields from simulation-core (payload in workstation_interface.proto)
+// Routing metadata for a simulation event; mirrors simulation-core Event (payload is separate).
 message SimEvent {
   int64 id = 1;
-  int32 status = 2;
+  int32 status = 2; // raw event status code from simulation-core
   int64 l_time_created = 3;
   int64 l_time = 4;
   int64 src_id = 5;
@@ -43,6 +46,7 @@ message SimEvent {
   int32 dst_port = 8;
 }
 
+// Serialized output of one component after a sub-job completes.
 message ComponentState {
   int64 component_id = 1;
   repeated string state_values = 2;

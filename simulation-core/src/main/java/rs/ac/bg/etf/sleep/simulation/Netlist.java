@@ -2,6 +2,9 @@ package rs.ac.bg.etf.sleep.simulation;
 
 import java.util.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Registry of simulation components and port-to-port connections.
  *
@@ -12,6 +15,8 @@ import java.util.*;
  * @param <V> payload type of events routed through this netlist
  */
 public class Netlist<V> {
+	private static final Logger log = LoggerFactory.getLogger(Netlist.class);
+
 	HashMap<Long, SimComponent<V>> components;
 	HashMap<SimEndpoint, List<SimEndpoint>> connections;
 
@@ -151,7 +156,7 @@ public class Netlist<V> {
 			component.setState(data);
 			components.put(id, component);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Failed to add component from data {}", Arrays.toString(data), e);
 		}
 
 	}
